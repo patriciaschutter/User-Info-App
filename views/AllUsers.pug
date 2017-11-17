@@ -1,0 +1,20 @@
+html
+	head
+		title All Users
+	body
+		include nav.pug
+		h1 Part 0: List of all users
+
+			
+		- for (i = 0; i < usersArray.length; i++)
+			ul
+				li User:
+				li.user Firstname: #{usersArray[i].firstname}  
+				li.user Lastname: #{usersArray[i].lastname} 
+				li.user Email: #{usersArray[i].email} 
+
+			
+style.
+	li.user{
+	list-style-type: none;
+	}

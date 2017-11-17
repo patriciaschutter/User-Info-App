@@ -1,0 +1,12 @@
+html
+	head
+		title Add User
+	body
+		include nav.pug
+
+		h1 Part 2: Add user
+		form(method="POST", action="/addUser")
+			input(type="text" name="firstname" placeholder="Firstname")
+			input(type="text" name="lastname" placeholder="Lastname")
+			input(type="text" name="email" placeholder="Email")
+			input(type="submit" value="Add user" )
