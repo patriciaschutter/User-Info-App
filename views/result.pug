@@ -6,21 +6,11 @@ html
 
 		h1 Matches found
 
+		ul
+
+			each item in resultMatch
+				li= item.firstname + " | " + item.lastname + " | " + item.email
 		
 
-		p.bold Firstname: 
-		p #{FirstName}
-		br
-		p.bold Lastname: 
-		p #{LastName}
-		br
-		p.bold Email: 
-		p #{Email}
-
-style.
-	p.bold{
-	font-weight: bold;
-	}
-	p{
-	margin: 0;
-	}
+	script.
+		console.log(resultMatch)
