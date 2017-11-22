@@ -20,7 +20,7 @@ html
 			$(document).ready(function(){
 				var previousStamp = Date.now()
 				$("#searchForm").keyup(function() {
-					if(Date.now() - 30sdf0 < previousStamp){
+					if(Date.now() - 400 < previousStamp){
 						previousStamp = Date.now();
 						console.log("blocked, too soon")
 						return
