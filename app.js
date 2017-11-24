@@ -19,9 +19,7 @@ var fs = require ('fs')
 app.set('view engine', 'pug')
 app.use(bodyParser.urlencoded({extended:true}))// 
 
-app.listen(3000, ()=> {
-	console.log("listening")
-})
+
 
 // to get the index page with calling localhost:3000. 
 app.get('/', function (req, res) {
@@ -129,4 +127,8 @@ app.post("/addUser", function(req, res) {
 	})
 
   })
+})
+
+app.listen(3004, ()=> {
+	console.log("listening on 3004")
 })
