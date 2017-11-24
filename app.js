@@ -1,20 +1,29 @@
-/* User Information App - Web Server | FULL STACK COURSE OCT'17 - PATRICIA SCHUTTER 
+// NOTE TO SELF: MAKE SURE YOU ARE ON AJAXSERVER BRANCH!!!! 
 
-Create a Node.js application that is the beginning of a user management system. Your users are all saved in a "users.json" file, and you can currently do the following:
-- search for users
-- add new users to your users file.
-- get your starter file here: users.json
 
-PART 0
-Create one route:
-- route 1: renders a page that displays all your users.
+/* User Information App - AJAX Server | FULL STACK COURSE OCT'17 - PATRICIA SCHUTTER 
+
+Starting with your previous website, create a new branch to preserve the old site. 
+>> Branch created: AjaxServer. 
+
+Hints:
+- use https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/indexOf (Links to an external site.)
+- you cannot send or render a response more than once per request.
+- you must find a way to capture whenever the user's input changes in the search bar. This will trigger your Ajax request to your server.
+
+PART 0:
+If you're having trouble finding matching users, solve the puzzle first: 
+>>>> answers in practise.js
+
+Your site has a form on it that acts like a search bar. When someone types into the search bar, it should retrieve a list of matching users and list them by name on the same page, similar to how the search bars on airbnb.com or hipmunk.com function.
+
+Once the user submits the search bar, it should exhibit the same behavior as the previous assignment, i.e. display a new page with the search results.
 */
 
 const express = require("express")
 const app = express()
 const bodyParser = require("body-parser")
 var fs = require ('fs')
-// var jsonfilereader = require('./json-file-reader.js')
 
 app.set('view engine', 'pug')
 app.use(bodyParser.urlencoded({extended:true}))// 
@@ -26,7 +35,12 @@ app.get('/', function (req, res) {
 	res.render('index')
 })
 
-// ROUTE 1: renders a page that displays all your users
+// Renders page that displays a form with search bar.
+app.get('/SearchByName', function(req, res){
+	res.render('SearchByName',{suggestion: []})
+})
+
+// Renders a page that displays all the users.
 app.get('/AllUsers', function(req,res){
 		fs.readFile('users.json', 'utf-8', function(err, data) {
 			if (err) {
@@ -39,38 +53,59 @@ app.get('/AllUsers', function(req,res){
 		})
 })
 
-/* PART 1
-Create two more routes:
-*/
-
-// ROUTE 2: renders a page that displays a form which is your search bar.
-app.get('/SearchByName', function(req, res){
-	res.render('SearchByName')
-})
-
-// ROUTE 3: takes in the post request from your form, then displays matching users on a new page. Users should be matched based on whether either their first or last name contains the input string.
-app.post("/searchbar", function(req, res){
-	console.log('searchbar responds')
+// Takes in the post request from your form, then displays matching users on a new page. Suggestions should be shown on same page.
+// SERVER SIDE
+app.post("/suggestion", function(req, res){
+	let inputFN = req.body.inputFirstn
+	let inputLN = req.body.inputLastn
+	console.log(`Input client firstn: ${inputFN}\nInput client lastn: ${inputLN}`)
 	fs.readFile('users.json', 'utf-8', function(err, data){
 		if (err){
 			throw err
 		}
 		var users = JSON.parse(data)
-		var userMatch = {}
+		var userMatch = []
+		for (var i = 0; i < users.length; i++){
+			if (users[i].firstname.slice(0, inputFN.length) === inputFN && users[i].lastname.slice(0, inputLN.length ) === inputLN && inputFN.length > 0 && inputLN.length > 0 || 
+				users[i].firstname.slice(0, inputFN.length) === inputFN && inputLN === '' && inputFN.length > 0 || 
+				inputFN === '' && users[i].lastname.slice(0, inputLN.length) === inputLN && inputLN.length > 0){
+				userMatch.push(users[i])
+			}
+		}
+		console.log(userMatch)
+		if (userMatch.length > 0){ // if there is something in there it's truthy and this 'if' will be excecuted. 
+			res.json({ 
+				status: 200,
+				suggestion: userMatch,
+				})
+		}
+	})
+})
+
+
+
+
+// Post request to display user matched on a new page 
+app.post("/search", function(req, res){
+console.log('searchbar responds')
+	fs.readFile('users.json', 'utf-8', function(err, data){
+		if (err){
+			throw err
+		}
+		var users = JSON.parse(data)
+		var userMatch = []
 		for (var i = 0; i < users.length; i++){
 			// if (req.body.firstname === users[i].firstname && req.body.lastname === users[i].lastname){
 			if (users[i].firstname === req.body.firstname && users[i].lastname === req.body.lastname || 
 				users[i].firstname === req.body.firstname && req.body.lastname === '' || 
 				req.body.firstname === '' && users[i].lastname === req.body.lastname ){
-				userMatch = { firstname: users[i].firstname, lastname: users[i].lastname, email: users[i].email}
+				userMatch.push(users[i]) 
 			}
 		}
-		console.log("Users matched: ", userMatch.firstname, userMatch.lastname, userMatch.email)
-				if (userMatch.firstname){ // if there is something in there it's truthy and this 'if' will be excecuted. 
+		console.log("Users matched: ", userMatch)
+				if (userMatch.length > 0){ 
 					res.render('result', {
-							FirstName: userMatch.firstname,
-							LastName: userMatch.lastname,
-							Email: userMatch.email,
+							resultMatch: userMatch,
 						})
 		} else {
 				res.render('failed')
@@ -87,19 +122,12 @@ app.get('/result', function(req, res){
 	res.render('result')
 })
 
-/*
-PART 2
-Create two more routes:
-
-
-*/
-
-// ROUTE 4: renders a page with a form with three inputs on it (first name, last name, and email) that allows you to add new users to the users.json file.
+// Renders a page with a form with three inputs on it (first name, last name, and email) that allows you to add new users to the users.json file.
 app.get("/AddUser", (req, res) => {
   res.render ("AddUser")
 })
 
-// ROUTE 5: takes in the post request from the 'add user' form, then adds the user to the users.json file. Once that is complete, redirects to the route that displays all your users (from part 0).
+// Takes in the post request from the 'add user' form, then adds the user to the users.json file. Once that is complete, redirects to the route that displays all your users (from part 0).
 app.post("/addUser", function(req, res) {
   fs.readFile('users.json', function(err,data) {
 	if (err) {
@@ -125,10 +153,9 @@ app.post("/addUser", function(req, res) {
 	  }
 	  else(res.redirect('/AllUsers'))
 	})
-
-  })
+})
 })
 
 app.listen(3004, ()=> {
-	console.log("listening on 3004")
+	console.log("listening at 3004")
 })

@@ -1,13 +1,42 @@
 html
 	head
 		title All Users
+		script(src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous")
 	body
 		include nav.pug
 
 		h1 Part 1: Search by First- or Lastname 
 
-		form(method="POST", action="/searchbar")
-			input(type="text" name="firstname" placeholder="Firstname")
-			input(type="text" name="lastname" placeholder="Lastname")
+		form(id="searchForm" method="POST", action="/search")
+			input(id="firstname" type="text" name="firstname" placeholder="Firstname")
+			input(id="lastname" type="text" name="lastname" placeholder="Lastname")
 			input(type="submit" value="submit")
 
+		h4 Suggestions:
+		ul(id="suggField")
+
+		script.
+			// CLIENT SIDE
+			$(document).ready(function(){
+				var previousStamp = Date.now()
+				$("#searchForm").keyup(function() {
+					if(Date.now() - 300 < previousStamp){
+						previousStamp = Date.now();
+						console.log("blocked, too soon")
+						return
+					}
+					previousStamp = Date.now()
+					// in browser tools show input firstname
+					console.log($(this).find("#firstname").val())
+						var input = {inputFirstn: $(this).find("#firstname").val(), inputLastn: $(this).find("#lastname").val()}
+
+						$.post("http://localhost:3004/suggestion", input, function(data, err){
+						//- console.log(data.suggestion)
+							$(".sugg").remove()
+							for (var i = 0; i < data.suggestion.length; i++){
+								$("#suggField").append("<li class='sugg'>" + data.suggestion[i].firstname + " | " + data.suggestion[i].lastname + " | " + data.suggestion[i].email + "</li>")
+						}
+					}) 
+				})
+			})
+					
